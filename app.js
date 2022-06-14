@@ -33,7 +33,9 @@ app.post("/register", async (request, response) => {
     response.status(400);
     response.send("Password is too short");
   } else {
-    const selectUserQuery = `SELECT * FROM user WHERE username = '${username}';`;
+    const selectUserQuery = `SELECT * 
+    FROM user 
+    WHERE username = '${username}';`;
     const dbUser = await db.get(selectUserQuery);
     if (dbUser === undefined) {
       const hashedPassword = await bcrypt.hash(password, 10);
@@ -44,7 +46,7 @@ app.post("/register", async (request, response) => {
         '${name}',
         '${hashedPassword}',
         '${gender}',
-        '${location}';`;
+        '${location}');`;
       const dbResponse = await db.run(createUserQuery);
       const newUserId = dbResponse.lastId;
       response.send("User created successfully");
@@ -56,7 +58,7 @@ app.post("/register", async (request, response) => {
 });
 
 //API2
-app.post("/login/", async (request, response) => {
+app.post("/login", async (request, response) => {
   const { username, password } = request.body;
   const selectUserQuery = `SELECT * FROM user WHERE username = '${username}'`;
   const dbUser = await db.get(selectUserQuery);
@@ -75,7 +77,7 @@ app.post("/login/", async (request, response) => {
 });
 
 //API 3
-app.put("/change-password/", async (request, response) => {
+app.put("/change-password", async (request, response) => {
   const { username, oldPassword, newPassword } = request.body;
   const selectUserQuery = `SELECT * FROM user WHERE username='${username}';`;
   const dbUser = await db.get(selectUserQuery);
@@ -88,10 +90,10 @@ app.put("/change-password/", async (request, response) => {
       response.status(400);
       response.send("Password is too short");
     } else {
-      const newHashedPassword = await db.hash(newPassword, 10);
+      const newHashedPassword = await bcrypt.hash(newPassword, 10);
       const updatePasswordQuery = `UPDATE user 
         SET
-        password = '${newHashedPassword}',
+        password = '${newHashedPassword}'
         WHERE username = '${username}';`;
 
       await db.run(updatePasswordQuery);
